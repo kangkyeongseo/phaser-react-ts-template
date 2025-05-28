@@ -11,7 +11,7 @@ export default defineConfig({
             inlineDynamicImports: true,
             output: {
                 entryFileNames: "main.[hash].js",
-                assetFileNames: "assets/[name].[ext]",
+                assetFileNames: "[name].[hash].[ext]",
             },
         },
         minify: "terser",

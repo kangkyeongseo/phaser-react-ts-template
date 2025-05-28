@@ -1,25 +1,27 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import PhaserGame, { PhaserGameRef } from "./components/PhaserGame";
 import { EventBus } from "./game/EventBus";
 
 function App() {
     const phaserRef = useRef<PhaserGameRef | null>(null);
+    const [isGameReady, setIsGameReady] = useState(false);
 
     useEffect(() => {
-        EventBus.on("ready", () => {
-            const loadingContainer =
-                document.querySelector(".loading-container");
+        const handleGameReady = () => {
+            const loadingContainer = document.querySelector(".loading-container");
             loadingContainer?.remove();
-        });
+            setIsGameReady(true);
+        };
+        EventBus.on("game-ready", handleGameReady);
 
         return () => {
-            EventBus.off("ready");
+            EventBus.off("game-ready", handleGameReady);
         };
     }, []);
 
     return (
         <div id="app">
-            <PhaserGame ref={phaserRef} />
+            <PhaserGame ref={phaserRef} isGameReady={isGameReady} />
         </div>
     );
 }

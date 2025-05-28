@@ -9,11 +9,12 @@ export class Preloader extends Scene {
     init() {}
 
     preload() {
-        EventBus.emit("ready", this);
         this.load.setPath("assets");
     }
 
     create() {
+        EventBus.emit("game-ready", this);
+        EventBus.emit("scene-create", this);
         // this.scene.start("MainMenu");
     }
 }

@@ -74,6 +74,8 @@ const PhaserGame = ({ ref, isGameReady }: PhaserGameProps) => {
                     pauseScene();
                 }
             };
+
+            handleStateChange();
             soundManager.context.onstatechange = handleStateChange;
 
             return () => {

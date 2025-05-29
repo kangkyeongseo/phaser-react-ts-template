@@ -1,15 +1,5 @@
-export {};
-
-declare global {
-    interface Window {
-        gCloseWindow: () => void;
-        gClearGame: (GameId: string, IsSucces: boolean) => void;
-    }
-}
-
 window.gCloseWindow = () => window.close();
-window.gClearGame = (GameId: string, IsSucces: boolean) =>
-    console.log("func:clearGame -> " + GameId, IsSucces);
+window.gClearGame = (GameId, IsSucces) => console.log("func:clearGame -> " + GameId, IsSucces);
 
 const characterLoding = document.querySelector(".loading-container__character");
 const characters = characterLoding?.querySelectorAll("img");
@@ -17,14 +7,14 @@ const textLoading = document.querySelector(".loading-container__text");
 const texts = textLoading?.querySelectorAll("span");
 
 const loading = () => {
-    const animations: Animation[] = [];
+    const animations = [];
     const characterFrames = [
         { transform: "translateY(0px)" },
         { transform: "translateY(-40px) rotate(-5deg)" },
         { transform: "translateY(-40px) rotate(3deg)" },
         { transform: "translateY(0px)" },
     ];
-    const characterAnimaitionOptions: KeyframeAnimationOptions = {
+    const characterAnimaitionOptions = {
         duration: 600,
         easing: "ease-in-out",
         fill: "forwards",
@@ -42,7 +32,7 @@ const loading = () => {
 const textAnimation = () => {
     const textAnimations = [];
     const textFrames = [{ scale: 1 }, { scale: 0.8 }];
-    const textAnimaitionOptions: KeyframeAnimationOptions = {
+    const textAnimaitionOptions = {
         duration: 700,
         easing: "ease-in-out",
         iterations: Infinity,
@@ -57,13 +47,13 @@ const textAnimation = () => {
 };
 
 const appearCharacterAnimation = () => {
-    const appearAnimations: Animation[] = [];
+    const appearAnimations = [];
     const appearCharacterFrames = [
         { opacity: 0, transform: "translateY(0px)" },
         { opacity: 1, transform: "translateY(-40px)" },
         { opacity: 1, transform: "translateY(0px)" },
     ];
-    const appearCharacterAnimaitionOptions: KeyframeAnimationOptions = {
+    const appearCharacterAnimaitionOptions = {
         duration: 1000,
         easing: "ease-in-out",
         fill: "forwards",

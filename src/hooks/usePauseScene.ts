@@ -11,7 +11,7 @@ function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameR
             game.pause();
             game.sound.pauseAll();
         }
-    }, [phaserRef, isGameReady]);
+    }, [isGameReady]);
 
     const resumeScene = useCallback(() => {
         const game = phaserRef.current?.game;
@@ -20,7 +20,7 @@ function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameR
             game.resume();
             game.sound.resumeAll();
         }
-    }, [phaserRef, isGameReady]);
+    }, [isGameReady]);
 
     useEffect(() => {
         const game = phaserRef.current?.game;

@@ -3,7 +3,7 @@ const PauseSceneScreen = ({ resumeScene }: { resumeScene: () => void }) => {
 
     return (
         <div
-            className="fixed top-0 flex h-[100vh] w-[100vw] cursor-pointer items-center justify-center"
+            className="fixed top-0 flex h-[100vh] w-[100vw] cursor-pointer items-center justify-center bg-[rgba(0,0,0,0.5)]"
             onClick={resumeScene}
         >
             <img src={restartBtnSrc} alt="restart-btn" />

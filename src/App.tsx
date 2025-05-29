@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import PhaserGame, { PhaserGameRef } from "./components/PhaserGame";
 import { EventBus } from "./game/utils/EventBus";
+import usePauseScene from "./hooks/usePauseScene";
+import PauseSceneScreen from "./components/PauseSceneScreen";
 
 function App() {
     const phaserRef = useRef<PhaserGameRef | null>(null);
     const [isGameReady, setIsGameReady] = useState(false);
+    const { isPause, resumeScene } = usePauseScene(phaserRef, isGameReady);
 
     useEffect(() => {
         const handleGameReady = () => {
@@ -21,7 +24,8 @@ function App() {
 
     return (
         <div id="app">
-            <PhaserGame ref={phaserRef} isGameReady={isGameReady} />
+            {isPause && <PauseSceneScreen resumeScene={resumeScene} />}
+            <PhaserGame ref={phaserRef} />
         </div>
     );
 }

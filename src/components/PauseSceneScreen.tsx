@@ -1,5 +1,5 @@
 const PauseSceneScreen = ({ resumeScene }: { resumeScene: () => void }) => {
-    const restartBtnSrc = "../../public/assets/shared/img-common-restart-btn.webp";
+    const restartBtnSrc = "assets/shared/img-common-restart-btn.webp";
 
     return (
         <div

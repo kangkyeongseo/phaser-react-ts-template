@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import StartGame from "../game/main";
-import { EventBus } from "../game/EventBus";
+import { EventBus } from "../game/utils/EventBus";
 import PauseSceneScreen from "./PauseSceneScreen";
 
 export interface PhaserGameRef {

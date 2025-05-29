@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import PhaserGame, { PhaserGameRef } from "./components/PhaserGame";
-import { EventBus } from "./game/EventBus";
+import { EventBus } from "./game/utils/EventBus";
 
 function App() {
     const phaserRef = useRef<PhaserGameRef | null>(null);

@@ -33,4 +33,8 @@ export class SoundManager {
     isPlaying(key: string) {
         return this.sounds[key]?.isPlaying ?? false;
     }
+
+    get getSounds() {
+        return this.sounds;
+    }
 }

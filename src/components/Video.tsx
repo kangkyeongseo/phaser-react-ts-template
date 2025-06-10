@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
 import useMaxVideoWidth from "../hooks/useMaxVideoWidth";
@@ -12,10 +12,14 @@ interface VideoProps {
 }
 
 const Video = ({ options, onReady }: VideoProps) => {
+    const HOLD_DELAY = 2000;
+
     const maxwidth = useMaxVideoWidth();
 
     const videoRef = useRef<HTMLDivElement | null>(null);
     const playerRef = useRef<VideoJsPlayer | null>(null);
+    const holdTimerRef = useRef<number | null>(null);
+    const isSpeedingUpRef = useRef(false);
 
     useEffect(() => {
         if (!playerRef.current) {
@@ -37,8 +41,44 @@ const Video = ({ options, onReady }: VideoProps) => {
 
     useEffect(() => {
         const player = playerRef.current;
+        const element = player?.el();
+
+        const handlePress = () => {
+            holdTimerRef.current = setTimeout(() => {
+                isSpeedingUpRef.current = true;
+                player?.playbackRate(2);
+            }, HOLD_DELAY);
+        };
+
+        const handleRelease = () => {
+            if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+            player?.playbackRate(1);
+
+            const wasFast = isSpeedingUpRef.current;
+            isSpeedingUpRef.current = false;
+
+            setTimeout(() => {
+                if (wasFast && player?.paused()) {
+                    player?.play();
+                }
+            }, 0);
+        };
+
+        element?.addEventListener("mousedown", handlePress);
+        element?.addEventListener("mouseup", handleRelease);
+        element?.addEventListener("mouseleave", handleRelease);
+        element?.addEventListener("touchstart", handlePress);
+        element?.addEventListener("touchend", handleRelease);
+        element?.addEventListener("touchcancel", handleRelease);
 
         return () => {
+            element?.removeEventListener("mousedown", handlePress);
+            element?.removeEventListener("mouseup", handleRelease);
+            element?.removeEventListener("mouseleave", handleRelease);
+            element?.removeEventListener("touchstart", handlePress);
+            element?.removeEventListener("touchend", handleRelease);
+            element?.removeEventListener("touchcancel", handleRelease);
+
             if (player && !player.isDisposed()) {
                 player.dispose();
                 playerRef.current = null;

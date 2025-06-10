@@ -27,7 +27,7 @@ function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameR
         if (isGameReady && game && game.sound instanceof Phaser.Sound.WebAudioSoundManager) {
             const soundManager = game.sound;
             const handleStateChange = () => {
-                if (soundManager.context.state === "suspended") {
+                if (soundManager.context?.state === "suspended") {
                     pauseScene();
                 }
             };

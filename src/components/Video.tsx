@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
+import useMaxVideoWidth from "../hooks/useMaxVideoWidth";
 import "video.js/dist/video-js.css";
 
 export type VideoJsPlayer = Player;
@@ -11,6 +12,8 @@ interface VideoProps {
 }
 
 const Video = ({ options, onReady }: VideoProps) => {
+    const maxwidth = useMaxVideoWidth();
+
     const videoRef = useRef<HTMLDivElement | null>(null);
     const playerRef = useRef<VideoJsPlayer | null>(null);
 
@@ -30,7 +33,7 @@ const Video = ({ options, onReady }: VideoProps) => {
             player.autoplay(options.autoplay);
             player.src(options.sources);
         }
-    }, [options, videoRef]);
+    }, [options]);
 
     useEffect(() => {
         const player = playerRef.current;
@@ -41,10 +44,10 @@ const Video = ({ options, onReady }: VideoProps) => {
                 playerRef.current = null;
             }
         };
-    }, [playerRef]);
+    }, []);
 
     return (
-        <div data-vjs-player className="w-100">
+        <div data-vjs-player style={{ width: maxwidth < window.innerWidth ? `${maxwidth}px` : "100%" }}>
             <div ref={videoRef} />
         </div>
     );

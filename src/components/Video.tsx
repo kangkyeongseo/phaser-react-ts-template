@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
+import SpeedingAlert from "./SpeedingAlert";
 import useMaxVideoWidth from "../hooks/useMaxVideoWidth";
 import "video.js/dist/video-js.css";
 
@@ -13,6 +14,8 @@ interface VideoProps {
 
 const Video = ({ options, onReady }: VideoProps) => {
     const HOLD_DELAY = 2000;
+
+    const [isSpeeding, setIsSpeeding] = useState(false);
 
     const maxwidth = useMaxVideoWidth();
 
@@ -46,6 +49,7 @@ const Video = ({ options, onReady }: VideoProps) => {
         const handlePress = () => {
             holdTimerRef.current = setTimeout(() => {
                 isSpeedingUpRef.current = true;
+                setIsSpeeding(true);
                 player?.playbackRate(2);
             }, HOLD_DELAY);
         };
@@ -56,6 +60,7 @@ const Video = ({ options, onReady }: VideoProps) => {
 
             const wasFast = isSpeedingUpRef.current;
             isSpeedingUpRef.current = false;
+            setIsSpeeding(false);
 
             setTimeout(() => {
                 if (wasFast && player?.paused()) {
@@ -87,8 +92,13 @@ const Video = ({ options, onReady }: VideoProps) => {
     }, []);
 
     return (
-        <div data-vjs-player style={{ width: maxwidth < window.innerWidth ? `${maxwidth}px` : "100%" }}>
+        <div
+            data-vjs-player
+            className="relative"
+            style={{ width: maxwidth < window.innerWidth ? `${maxwidth}px` : "100%" }}
+        >
             <div ref={videoRef} />
+            {isSpeeding && <SpeedingAlert />}
         </div>
     );
 };

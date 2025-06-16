@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { PhaserGameRef } from "../components/PhaserGame";
 
-function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameReady: boolean) {
+function usePauseScene(
+    phaserRef: React.RefObject<PhaserGameRef | null>,
+    isGameReady: boolean,
+    isPlayerVisible: boolean,
+) {
     const [isPause, setIsPause] = useState(false);
 
     const pauseScene = useCallback(() => {
@@ -24,7 +28,9 @@ function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameR
 
     useEffect(() => {
         const game = phaserRef.current?.game;
-        if (isGameReady && game && game.sound instanceof Phaser.Sound.WebAudioSoundManager) {
+        if (isPlayerVisible) return;
+        if (!isGameReady) return;
+        if (game && game.sound instanceof Phaser.Sound.WebAudioSoundManager) {
             const soundManager = game.sound;
             const handleStateChange = () => {
                 if (soundManager.context?.state === "suspended") {
@@ -39,7 +45,7 @@ function usePauseScene(phaserRef: React.RefObject<PhaserGameRef | null>, isGameR
                 soundManager.context.onstatechange = null;
             };
         }
-    }, [isGameReady]);
+    }, [isGameReady, isPlayerVisible]);
 
     return { isPause, pauseScene, resumeScene };
 }

@@ -15,6 +15,6 @@ export class Preloader extends Scene {
     create() {
         EventBus.emit("game-ready", this);
         EventBus.emit("scene-create", this);
-        // this.scene.start("MainMenu");
+        EventBus.on("start-game", () => this.scene.start("Quiz"));
     }
 }

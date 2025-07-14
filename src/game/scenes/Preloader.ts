@@ -10,6 +10,8 @@ export class Preloader extends Scene {
 
     preload() {
         this.load.setPath("assets");
+        // shared image
+        this.load.image("shared-spinner", "shared/img-shared-spinner.png");
     }
 
     create() {

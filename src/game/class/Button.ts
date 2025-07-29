@@ -80,12 +80,12 @@ export class Button {
                       targets: this.button,
                       tweens: [
                           {
-                              scale: this.isDesktop ? this.initScale * 1 : this.initScale * 0.9,
+                              scale: this.initScale * 0.9,
                               ease: "Sine.easeInOut",
                               duration: 100,
                           },
                           {
-                              scale: this.isDesktop ? this.initScale * 1.1 : this.initScale * 1,
+                              scale: this.initScale * 1,
                               ease: "Sine.easeInOut",
                               duration: 100,
                           },

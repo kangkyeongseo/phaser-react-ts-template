@@ -48,10 +48,10 @@ export class Button {
         }
 
         this.button.on("pointerover", () => {
-            if (tweens) {
+            if (tweens && tweens.isActive()) {
                 tweens.pause();
             }
-            if (pointerOutTween) {
+            if (pointerOutTween && pointerOutTween.isActive()) {
                 pointerOutTween.pause();
             }
             this.button.setScale(this.initScale * 1.1);

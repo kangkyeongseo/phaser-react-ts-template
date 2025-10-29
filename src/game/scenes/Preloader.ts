@@ -20,7 +20,7 @@ export class Preloader extends Scene {
     create() {
         EventBus.emit("game-ready", this);
         EventBus.emit("scene-create", this);
-        EventBus.on("start-game", (scene: string) => {
+        EventBus.once("start-game", (scene: string) => {
             this.scene.stop(this.scene.key);
             this.scene.start(scene);
         });

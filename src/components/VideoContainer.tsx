@@ -95,12 +95,10 @@ const VideoContainer = ({
     const stopPlayerForPlayGame = useCallback((point: { time: number; scene: string }) => {
         if (!playerRef.current) return;
 
-        const currentTime = playerRef.current.currentTime();
-
         playerRef.current.pause();
 
         setIsPlayerVisible(false);
-        playerCurrentTime.current = currentTime || 0;
+        playerCurrentTime.current = point.time || 0;
 
         EventBus.emit("start-game", point.scene);
 
@@ -121,10 +119,15 @@ const VideoContainer = ({
             return;
         }
         const currentTime = playerRef.current.currentTime() as number;
-        const floored = Math.floor(currentTime);
+        const tolerance = 0.2;
 
-        if (!executedRef.current.has(floored) && triggerMap.has(floored)) {
-            stopPlayerForPlayGame({ time: floored, scene: triggerMap.get(floored)! });
+        for (const [time, scene] of triggerMap.entries()) {
+            if (Math.abs(time - currentTime) <= tolerance) {
+                if (!executedRef.current.has(time)) {
+                    stopPlayerForPlayGame({ time, scene });
+                }
+                break;
+            }
         }
     }, [isPlayerReady]);
 

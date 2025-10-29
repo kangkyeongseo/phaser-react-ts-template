@@ -1,84 +1,74 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PhaserGame, { PhaserGameRef } from "./components/PhaserGame";
-import Video, { VideoJsPlayer } from "./components/Video";
 import PauseSceneScreen from "./components/PauseSceneScreen";
+import VideoContainer from "./components/VideoContainer";
 import usePauseScene from "./hooks/usePauseScene";
 import useGameReady from "./hooks/useGameReady";
-import { EventBus } from "./game/utils/EventBus";
-
-const START_PHASER_TIME = 2;
+import useFetch from "./hooks/useFetch";
 
 function App() {
-    const [isPlayerVisible, setIsPlayerVisible] = useState(false);
-    const [playerCurrentTime, setPlayerCurrentTime] = useState<number>(0);
-
-    const playerRef = useRef<VideoJsPlayer | null>(null);
     const phaserRef = useRef<PhaserGameRef | null>(null);
-    const startPhaserTimeRef = useRef(START_PHASER_TIME);
-    const isStartedGameRef = useRef(false);
+
+    const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+    const [conId, setConId] = useState<number | null>();
+    const [triggerPoints, setTriggerPoints] = useState<{ time: number; scene: string }[]>([]);
+    const [typeOnStart, setTypeOnStart] = useState<"game" | "video" | null>(null);
+    const [url, setUrl] = useState<string | null>();
 
     const isGameReady = useGameReady();
     const { isPause, resumeScene } = usePauseScene(phaserRef, isGameReady, isPlayerVisible);
+    const { data, fetchData } = useFetch<{ vodUrl: string }>();
 
-    const videoJsOptions = useMemo(
-        () => ({
-            autoplay: true,
-            controls: true,
-            fluid: true,
-            playbackRates: [0.5, 1, 1.5, 2],
-            sources: [
-                {
-                    src: "/assets/game/video/38230.mp4",
-                    type: "video/mp4",
-                },
-            ],
-        }),
-        [],
-    );
-
-    const handlePlayerReady = useCallback((player: VideoJsPlayer) => {
-        playerRef.current = player;
-
-        player.on("timeupdate", () => {
-            const currentTime = player.currentTime();
-            if (isStartedGameRef.current) return;
-            if (currentTime && Math.floor(currentTime) === startPhaserTimeRef.current) {
-                setIsPlayerVisible(false);
-                setPlayerCurrentTime(currentTime);
-                player.pause();
-                EventBus.emit("start-game");
-                isStartedGameRef.current = true;
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const res = await fetch("assets/game/config.json");
+                const data = await res.json();
+                setConId(data.conId);
+                setTriggerPoints(data.triggerPoints);
+                setTypeOnStart(data.triggerPoints[0].time === 0 ? "game" : "video");
+            } catch (error) {
+                console.error("Failed to fetch config:", error);
             }
-        });
+        };
+
+        fetchConfig();
     }, []);
 
     useEffect(() => {
-        if (isGameReady) {
-            setIsPlayerVisible(true);
+        if (!conId) return;
+
+        if (import.meta.env.DEV) {
+            setUrl("/assets/game/video/38230.mp4");
         }
-    }, [isGameReady]);
+
+        if (import.meta.env.PROD) {
+            const url = `/api/v1/contents/${conId}/url`;
+            const option = {
+                method: "GET",
+            };
+            fetchData(url, option);
+        }
+    }, [conId]);
 
     useEffect(() => {
-        if (playerCurrentTime === 0) return;
-        const backToPlayer = () => {
-            setIsPlayerVisible(true);
-            playerRef.current?.currentTime(playerCurrentTime);
-            playerRef.current?.play();
-        };
+        if (!data) return;
+        setUrl(data.vodUrl);
+    }, [data]);
 
-        EventBus.once("start-player", backToPlayer);
-
-        return () => {
-            EventBus.off("start-player", backToPlayer);
-        };
-    }, [playerCurrentTime]);
+    if (!url) return;
 
     return (
         <div id="app">
             {!isPlayerVisible && isPause && <PauseSceneScreen resumeScene={resumeScene} />}
-            <div className={`fixed w-[100%] items-center justify-center ${isPlayerVisible ? "flex" : "hidden"}`}>
-                <Video options={videoJsOptions} onReady={handlePlayerReady} />
-            </div>
+            <VideoContainer
+                isGameReady={isGameReady}
+                isPlayerVisible={isPlayerVisible}
+                setIsPlayerVisible={setIsPlayerVisible}
+                triggerPoints={triggerPoints}
+                typeOnStart={typeOnStart}
+                url={url}
+            />
             <PhaserGame ref={phaserRef} />
         </div>
     );

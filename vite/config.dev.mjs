@@ -7,6 +7,12 @@ export default defineConfig({
     plugins: [react(), tailwindcss()],
     server: {
         port: 8080,
+        proxy: {
+            "/api": {
+                target: "https://devm.genikids.com",
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ""),
+            },
+        },
     },
 });
-

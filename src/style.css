@@ -2,6 +2,17 @@
 @import "tailwindcss";
 
 @theme {
+    --animate-pointer: pointer 1s ease-in-out infinite;
+
+    @keyframes pointer {
+        0%,
+        100% {
+            transform: translateX(-20%) translateY(-20%);
+        }
+        50% {
+            transform: translateX(20%) translateY(20%);
+        }
+    }
 }
 
 body {
@@ -38,6 +49,10 @@ body {
     background-color: #ffffff;
 }
 
+.loading-container__logo img {
+    opacity: 0;
+}
+
 .loading-container__character {
     display: flex;
     justify-content: space-between;
@@ -57,7 +72,14 @@ body {
     display: none;
 }
 
+.transparent {
+    opacity: 0;
+}
+
 @media screen and (max-width: 480px) {
+    .loading-container__logo img {
+        width: 120px;
+    }
     .loading-container__character {
         height: 40px;
     }
@@ -70,6 +92,9 @@ body {
 }
 
 @media screen and (min-width: 480px) and (max-width: 1024px) {
+    .loading-container__logo img {
+        width: 180px;
+    }
     .loading-container__character {
         height: 60px;
     }
@@ -82,6 +107,9 @@ body {
 }
 
 @media screen and (min-width: 1024px) {
+    .loading-container__logo img {
+        width: 384px;
+    }
     .loading-container__character {
         height: 128px;
     }

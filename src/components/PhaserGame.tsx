@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import StartGame from "../game/main";
 import { EventBus } from "../game/utils/EventBus";
+import RelatedVideo from "./RelatedVideo";
 
 export interface PhaserGameRef {
     game: Phaser.Game | null;
@@ -13,6 +14,7 @@ interface PhaserGameProps {
 
 const PhaserGame = ({ ref }: PhaserGameProps) => {
     const game = useRef<Phaser.Game | null>(null!);
+    const [isEnding, setIsEnding] = useState(false);
 
     useLayoutEffect(() => {
         if (game.current === null) {
@@ -50,7 +52,23 @@ const PhaserGame = ({ ref }: PhaserGameProps) => {
         };
     }, [ref]);
 
-    return <div id="game-container"></div>;
+    useEffect(() => {
+        const handleRelatedCreate = (type: "block" | "hidden") => {
+            if (type === "block") {
+                setIsEnding(true);
+            } else {
+                setIsEnding(false);
+            }
+        };
+
+        EventBus.on("related-create", handleRelatedCreate);
+
+        return () => {
+            EventBus.off("related-create", handleRelatedCreate);
+        };
+    }, []);
+
+    return <div id="game-container">{isEnding && <RelatedVideo />}</div>;
 };
 
 export default PhaserGame;

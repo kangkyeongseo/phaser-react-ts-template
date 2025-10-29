@@ -21,9 +21,7 @@ export class BaseScene extends Scene {
     config!: {
         name: string;
         conId: number;
-        conGroupId: number;
-        relatedVideos: { conId: number; conGroupId: number }[];
-        recordPoint: { [stage: string]: [number, number] };
+        points: { sec: number; scene: string };
     };
 
     constructor(key: string) {
@@ -48,6 +46,11 @@ export class BaseScene extends Scene {
         if (isConfigPreload) {
             this.config = this.cache.json.get("config");
         }
+
+        EventBus.once("start-game", (scene: string) => {
+            this.scene.stop(this.scene.key);
+            this.scene.start(scene);
+        });
     }
 
     nextScenePreLoad(callback: () => void) {

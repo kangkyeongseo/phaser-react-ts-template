@@ -1,0 +1,9 @@
+{
+    "name": "video-module",
+    "conId": 38230,
+    "triggerPoints": [
+        { "time": 0, "scene": "Quiz" },
+        { "time": 20, "scene": "Quiz" },
+        { "time": 222, "scene": "Quiz" }
+    ]
+}

@@ -1,6 +1,7 @@
 import { AUTO, Game } from "phaser";
 import { Boot } from "./scenes/Boot";
 import { Preloader } from "./scenes/Preloader";
+import { Quiz } from "./scenes/Quiz";
 
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
@@ -11,7 +12,7 @@ const config: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     parent: "game-container",
-    scene: [Boot, Preloader],
+    scene: [Boot, Preloader, Quiz],
 };
 
 const StartGame = (parent: string) => {

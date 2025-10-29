@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
 import SpeedingAlert from "./SpeedingAlert";
@@ -29,6 +29,7 @@ const Video = ({ options, onReady }: VideoProps) => {
             const videoElement = document.createElement("video-js");
 
             videoElement.classList.add("vjs-big-play-centered");
+
             videoRef?.current?.appendChild(videoElement);
 
             const player = (playerRef.current = videojs(videoElement, options, () => {
@@ -69,6 +70,17 @@ const Video = ({ options, onReady }: VideoProps) => {
             }, 0);
         };
 
+        const handleMobliePlayToggle = (e: any) => {
+            if (e.target.nodeName === "VIDEO") {
+                if (player?.paused()) {
+                    player?.play();
+                } else {
+                    player?.pause();
+                }
+            }
+        };
+
+        element?.addEventListener("touchstart", handleMobliePlayToggle);
         element?.addEventListener("mousedown", handlePress);
         element?.addEventListener("mouseup", handleRelease);
         element?.addEventListener("mouseleave", handleRelease);
@@ -77,6 +89,7 @@ const Video = ({ options, onReady }: VideoProps) => {
         element?.addEventListener("touchcancel", handleRelease);
 
         return () => {
+            element?.removeEventListener("touchstart", handleMobliePlayToggle);
             element?.removeEventListener("mousedown", handlePress);
             element?.removeEventListener("mouseup", handleRelease);
             element?.removeEventListener("mouseleave", handleRelease);
@@ -103,4 +116,4 @@ const Video = ({ options, onReady }: VideoProps) => {
     );
 };
 
-export default Video;
+export default memo(Video);

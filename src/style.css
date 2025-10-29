@@ -117,3 +117,17 @@ body {
         font-size: 24px;
     }
 }
+
+@media (max-aspect-ratio: 16 / 9) {
+    canvas {
+        width: 100dvw !important;
+        height: calc(100dvw / 16 * 9) !important;
+    }
+}
+
+@media (min-aspect-ratio: 16 / 9) {
+    canvas {
+        width: calc(100dvh / 10 * 16) !important;
+        height: 100dvh !important;
+    }
+}

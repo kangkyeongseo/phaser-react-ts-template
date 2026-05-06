@@ -80,22 +80,22 @@ const Video = ({ options, onReady }: VideoProps) => {
             }
         };
 
-        element?.addEventListener("touchstart", handleMobliePlayToggle);
-        element?.addEventListener("mousedown", handlePress);
-        element?.addEventListener("mouseup", handleRelease);
-        element?.addEventListener("mouseleave", handleRelease);
-        element?.addEventListener("touchstart", handlePress);
-        element?.addEventListener("touchend", handleRelease);
-        element?.addEventListener("touchcancel", handleRelease);
+        element?.addEventListener("touchstart", handleMobliePlayToggle, { passive: true });
+        // element?.addEventListener("mousedown", handlePress);
+        // element?.addEventListener("mouseup", handleRelease);
+        // element?.addEventListener("mouseleave", handleRelease);
+        // element?.addEventListener("touchstart", handlePress);
+        // element?.addEventListener("touchend", handleRelease);
+        // element?.addEventListener("touchcancel", handleRelease);
 
         return () => {
             element?.removeEventListener("touchstart", handleMobliePlayToggle);
-            element?.removeEventListener("mousedown", handlePress);
-            element?.removeEventListener("mouseup", handleRelease);
-            element?.removeEventListener("mouseleave", handleRelease);
-            element?.removeEventListener("touchstart", handlePress);
-            element?.removeEventListener("touchend", handleRelease);
-            element?.removeEventListener("touchcancel", handleRelease);
+            // element?.removeEventListener("mousedown", handlePress);
+            // element?.removeEventListener("mouseup", handleRelease);
+            // element?.removeEventListener("mouseleave", handleRelease);
+            // element?.removeEventListener("touchstart", handlePress);
+            // element?.removeEventListener("touchend", handleRelease);
+            // element?.removeEventListener("touchcancel", handleRelease);
 
             if (player && !player.isDisposed()) {
                 player.dispose();

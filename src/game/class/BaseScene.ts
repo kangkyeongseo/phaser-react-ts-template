@@ -21,7 +21,7 @@ export class BaseScene extends Scene {
     config!: {
         name: string;
         conId: number;
-        points: { sec: number; scene: string };
+        triggerPoints: { time: number; restartTime: number; scene: string }[];
     };
 
     constructor(key: string) {
@@ -46,11 +46,6 @@ export class BaseScene extends Scene {
         if (isConfigPreload) {
             this.config = this.cache.json.get("config");
         }
-
-        EventBus.once("start-game", (scene: string) => {
-            this.scene.stop(this.scene.key);
-            this.scene.start(scene);
-        });
     }
 
     nextScenePreLoad(callback: () => void) {

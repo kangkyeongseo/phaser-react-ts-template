@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StartGame from "../game/main";
 import { EventBus } from "../game/utils/EventBus";
 import RelatedVideo from "./RelatedVideo";
@@ -16,7 +16,7 @@ const PhaserGame = ({ ref }: PhaserGameProps) => {
     const game = useRef<Phaser.Game | null>(null!);
     const [isEnding, setIsEnding] = useState(false);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (game.current === null) {
             game.current = StartGame("game-container");
             if (typeof ref === "function") {
@@ -32,6 +32,11 @@ const PhaserGame = ({ ref }: PhaserGameProps) => {
                 if (game.current !== null) {
                     game.current = null;
                 }
+            }
+            if (typeof ref === "function") {
+                ref({ game: null, scene: null });
+            } else if (ref) {
+                ref.current = { game: null, scene: null };
             }
         };
     }, [ref]);

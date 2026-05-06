@@ -7,21 +7,25 @@ import "videojs-markers/dist/videojs.markers.css";
 import "videojs-markers";
 
 interface Props {
-    isGameReady: boolean;
+    isModuleReady: boolean;
     isPlayerVisible: boolean;
     setIsPlayerVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    triggerPoints: { time: number; scene: string }[];
+    setIsGame: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsGameReady: React.Dispatch<React.SetStateAction<boolean>>;
+    triggerPoints: { time: number; restartTime: number; scene: string }[];
     typeOnStart: "game" | "video" | null;
     url: string;
 }
 
 const SEEKING_SENSITIVITY = 1000;
+const TOLERANCE = 0.2;
 
 const VideoContainer = ({
-    isGameReady,
+    isModuleReady,
     isPlayerVisible,
-
     setIsPlayerVisible,
+    setIsGame,
+    setIsGameReady,
     triggerPoints,
     typeOnStart,
     url,
@@ -29,8 +33,8 @@ const VideoContainer = ({
     const width = useWindowWidth();
 
     const playerRef = useRef<VideoJsPlayer | null>(null);
-    const executedRef = useRef(new Set<number>([0]));
     const isSeekingRef = useRef(false);
+    const isGameStarting = useRef(false);
     const playerCurrentTime = useRef(0);
 
     const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -39,6 +43,13 @@ const VideoContainer = ({
         () => ({
             autoplay: typeOnStart === "video" ? true : false,
             controls: true,
+            controlBar: {
+                fullscreenToggle: false,
+            },
+            playsinline: true,
+            html5: {
+                nativeControlsForTouch: false,
+            },
             fluid: true,
             playbackRates: [0.5, 1, 1.5, 2],
             userActions: {
@@ -54,14 +65,6 @@ const VideoContainer = ({
         [typeOnStart, url],
     );
 
-    const triggerMap = useMemo(() => {
-        const map = new Map<number, string>();
-        for (const point of triggerPoints) {
-            map.set(point.time, point.scene);
-        }
-        return map;
-    }, [triggerPoints]);
-
     const handlePlayerReady = useCallback(
         (player: VideoJsPlayer) => {
             playerRef.current = player;
@@ -69,6 +72,7 @@ const VideoContainer = ({
             (playerRef.current as any).markers({
                 markers: triggerPoints.map((p) => ({
                     time: p.time,
+                    restartTime: p.restartTime,
                     text: p.scene,
                 })),
                 markerStyle: {
@@ -81,8 +85,8 @@ const VideoContainer = ({
                 markerTip: {
                     display: false,
                 },
-                onMarkerClick: function (marker: { time: number; text: string }) {
-                    const point = { time: marker.time, scene: marker.text };
+                onMarkerClick: function (marker: { time: number; restartTime: number; text: string }) {
+                    const point = { time: marker.time, restartTime: marker.restartTime, scene: marker.text };
                     stopPlayerForPlayGame(point);
                 },
             });
@@ -92,17 +96,27 @@ const VideoContainer = ({
         [triggerPoints],
     );
 
-    const stopPlayerForPlayGame = useCallback((point: { time: number; scene: string }) => {
+    const stopPlayerForPlayGame = useCallback((point: { time: number; restartTime: number; scene: string }) => {
         if (!playerRef.current) return;
+        if (isGameStarting.current) return;
+        isGameStarting.current = true;
 
-        playerRef.current.pause();
+        playerCurrentTime.current = point.restartTime || 0;
 
-        setIsPlayerVisible(false);
-        playerCurrentTime.current = point.time || 0;
+        setIsGame(true);
 
-        EventBus.emit("start-game", point.scene);
+        const handleGameReady = () => {
+            setTimeout(() => {
+                setIsGameReady(true);
+                setIsPlayerVisible(false);
+                playerRef.current?.pause();
+                EventBus.emit("start-game", point.scene);
+                isGameStarting.current = false;
+            }, 100);
+        };
 
-        executedRef.current.add(point.time);
+        EventBus.off("game-ready");
+        EventBus.once("game-ready", handleGameReady);
     }, []);
 
     const handleTimeUpdate = useCallback(() => {
@@ -119,13 +133,10 @@ const VideoContainer = ({
             return;
         }
         const currentTime = playerRef.current.currentTime() as number;
-        const tolerance = 0.2;
 
-        for (const [time, scene] of triggerMap.entries()) {
-            if (Math.abs(time - currentTime) <= tolerance) {
-                if (!executedRef.current.has(time)) {
-                    stopPlayerForPlayGame({ time, scene });
-                }
+        for (const { time, restartTime, scene } of triggerPoints) {
+            if (Math.abs(time - currentTime) <= TOLERANCE) {
+                stopPlayerForPlayGame({ time, restartTime, scene });
                 break;
             }
         }
@@ -135,23 +146,35 @@ const VideoContainer = ({
         if (!playerRef.current) return;
 
         setIsPlayerVisible(true);
+        setIsGame(false);
+        setIsGameReady(false);
+
         playerRef.current.currentTime(playerCurrentTime.current);
         playerRef.current.play();
     }, []);
 
     useEffect(() => {
         if (!typeOnStart) return;
-        if (!isGameReady) return;
+        if (!isModuleReady) return;
 
         switch (typeOnStart) {
             case "video":
                 setIsPlayerVisible(true);
                 break;
             case "game":
-                EventBus.emit("start-game", triggerPoints[0].scene);
+                playerCurrentTime.current = triggerPoints[0].restartTime;
+                setIsGame(true);
+                const handleGameReady = () => {
+                    setTimeout(() => {
+                        setIsGameReady(true);
+                        EventBus.emit("start-game", triggerPoints[0].scene);
+                    }, 100);
+                    EventBus.off("game-ready", handleGameReady);
+                };
+                EventBus.once("game-ready", handleGameReady);
                 break;
         }
-    }, [typeOnStart, isGameReady]);
+    }, [typeOnStart, isModuleReady]);
 
     useEffect(() => {
         if (!playerRef.current) return;

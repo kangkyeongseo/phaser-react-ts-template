@@ -1,35 +1,41 @@
 import { useCallback, useEffect, useState } from "react";
 import { PhaserGameRef } from "../components/PhaserGame";
 
-function usePauseScene(
-    phaserRef: React.RefObject<PhaserGameRef | null>,
-    isGameReady: boolean,
-    isPlayerVisible: boolean,
-) {
+interface usePauseSceneProps {
+    phaserRef: React.RefObject<PhaserGameRef | null>;
+    isModuleReady: boolean;
+    isPlayerVisible: boolean;
+    isGameReady: boolean;
+}
+
+function usePauseScene({ phaserRef, isModuleReady, isPlayerVisible, isGameReady }: usePauseSceneProps) {
     const [isPause, setIsPause] = useState(false);
 
     const pauseScene = useCallback(() => {
         const game = phaserRef.current?.game;
-        if (isGameReady && game) {
+        if (isModuleReady && game) {
             setIsPause(true);
             game.pause();
             game.sound.pauseAll();
         }
-    }, [isGameReady]);
+    }, [isModuleReady]);
 
     const resumeScene = useCallback(() => {
         const game = phaserRef.current?.game;
-        if (isGameReady && game) {
+        if (isModuleReady && game) {
             setIsPause(false);
             game.resume();
             game.sound.resumeAll();
         }
-    }, [isGameReady]);
+    }, [isModuleReady]);
 
     useEffect(() => {
         const game = phaserRef.current?.game;
         if (isPlayerVisible) return;
+        if (!isModuleReady) return;
         if (!isGameReady) return;
+        if (!game) return;
+
         if (game && game.sound instanceof Phaser.Sound.WebAudioSoundManager) {
             const soundManager = game.sound;
             const handleStateChange = () => {
@@ -40,12 +46,8 @@ function usePauseScene(
 
             handleStateChange();
             soundManager.context.onstatechange = handleStateChange;
-
-            return () => {
-                soundManager.context.onstatechange = null;
-            };
         }
-    }, [isGameReady, isPlayerVisible]);
+    }, [isModuleReady, isPlayerVisible, isGameReady]);
 
     return { isPause, pauseScene, resumeScene };
 }

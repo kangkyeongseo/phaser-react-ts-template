@@ -3,20 +3,23 @@ import PhaserGame, { PhaserGameRef } from "./components/PhaserGame";
 import PauseSceneScreen from "./components/PauseSceneScreen";
 import VideoContainer from "./components/VideoContainer";
 import usePauseScene from "./hooks/usePauseScene";
-import useGameReady from "./hooks/useGameReady";
+import useModuleReady from "./hooks/useModuleReady";
 import useFetch from "./hooks/useFetch";
 
 function App() {
     const phaserRef = useRef<PhaserGameRef | null>(null);
 
     const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [isGame, setIsGame] = useState(false);
+    const [isGameReady, setIsGameReady] = useState(false);
     const [conId, setConId] = useState<number | null>();
-    const [triggerPoints, setTriggerPoints] = useState<{ time: number; scene: string }[]>([]);
+    const [triggerPoints, setTriggerPoints] = useState<{ time: number; restartTime: number; scene: string }[]>([]);
     const [typeOnStart, setTypeOnStart] = useState<"game" | "video" | null>(null);
     const [url, setUrl] = useState<string | null>();
 
-    const isGameReady = useGameReady();
-    const { isPause, resumeScene } = usePauseScene(phaserRef, isGameReady, isPlayerVisible);
+    const isModuleReady = useModuleReady(isVideoLoaded);
+    const { isPause, resumeScene } = usePauseScene({ phaserRef, isModuleReady, isPlayerVisible, isGameReady });
     const { data, fetchData } = useFetch<{ vodUrl: string }>();
 
     useEffect(() => {
@@ -40,6 +43,7 @@ function App() {
 
         if (import.meta.env.DEV) {
             setUrl("/assets/game/video/38230.mp4");
+            setIsVideoLoaded(true);
         }
 
         if (import.meta.env.PROD) {
@@ -54,6 +58,7 @@ function App() {
     useEffect(() => {
         if (!data) return;
         setUrl(data.vodUrl);
+        setIsVideoLoaded(true);
     }, [data]);
 
     if (!url) return;
@@ -62,14 +67,16 @@ function App() {
         <div id="app">
             {!isPlayerVisible && isPause && <PauseSceneScreen resumeScene={resumeScene} />}
             <VideoContainer
-                isGameReady={isGameReady}
+                isModuleReady={isModuleReady}
                 isPlayerVisible={isPlayerVisible}
                 setIsPlayerVisible={setIsPlayerVisible}
+                setIsGame={setIsGame}
+                setIsGameReady={setIsGameReady}
                 triggerPoints={triggerPoints}
                 typeOnStart={typeOnStart}
                 url={url}
             />
-            <PhaserGame ref={phaserRef} />
+            {isGame && <PhaserGame ref={phaserRef} />}
         </div>
     );
 }

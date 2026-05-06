@@ -19,6 +19,7 @@ export class Button {
     private isDesktop!: boolean;
     private button!: Phaser.GameObjects.Image;
     private initScale!: number;
+    public tweens: Phaser.Tweens.Tween | null;
 
     constructor(scene: Phaser.Scene, config: ButtonConfig) {
         this.scene = scene;
@@ -37,19 +38,18 @@ export class Button {
 
     setDefaultActive() {
         const { tweensConfig, onStart = () => {}, onComplete = () => {} } = this.config;
-        let tweens: Phaser.Tweens.Tween | null;
         let pointerOutTween: Phaser.Tweens.Tween | null;
 
         if (tweensConfig) {
-            tweens = this.scene.tweens.add({
+            this.tweens = this.scene.tweens.add({
                 targets: this.button,
                 ...tweensConfig,
             });
         }
 
         this.button.on("pointerover", () => {
-            if (tweens && tweens.isActive()) {
-                tweens.pause();
+            if (this.tweens && this.tweens.isActive()) {
+                this.tweens.pause();
             }
             if (pointerOutTween && pointerOutTween.isActive()) {
                 pointerOutTween.pause();
@@ -57,14 +57,14 @@ export class Button {
             this.button.setScale(this.initScale * 1.1);
         });
         this.button.on("pointerout", () => {
-            if (tweens) {
+            if (this.tweens) {
                 pointerOutTween = this.scene.tweens.add({
                     targets: this.button,
                     scale: this.initScale * 1,
                     ease: "Sine.easeInOut",
                     duration: 300,
                     onComplete: () => {
-                        if (tweens) tweens.restart();
+                        if (this.tweens) this.tweens.restart();
                     },
                 });
             } else {
@@ -74,7 +74,7 @@ export class Button {
         this.button.on("pointerdown", () => {
             onStart();
             this.button.removeInteractive();
-            !this.isDesktop && tweens
+            !this.isDesktop && this.tweens
                 ? onComplete()
                 : this.scene.tweens.chain({
                       targets: this.button,

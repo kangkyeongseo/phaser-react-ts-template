@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { SoundManager } from "./SoundManager";
 import { EventBus } from "./EventBus";
 import { Loading } from "./Loading";
+import { ConfigType } from "../../types/config";
 
 declare global {
     interface Window {
@@ -18,13 +19,7 @@ export class BaseScene extends Scene {
     isLoading!: boolean;
     loading!: Loading;
     soundManager!: SoundManager;
-    config!: {
-        name: string;
-        conId: number;
-        conGroupId: number;
-        relatedVideos: { conId: number; conGroupId: number }[];
-        recordPoint: { [stage: string]: [number, number] };
-    };
+    config!: ConfigType;
 
     constructor(key: string) {
         super(key);

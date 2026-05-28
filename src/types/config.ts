@@ -1,0 +1,60 @@
+interface FileType {
+    key: string;
+    file: string;
+}
+
+interface SpriteFileType extends FileType {
+    frameWidth: number;
+    frameHeight: number;
+}
+
+interface DefaultSoundType {
+    volume: number;
+    delay: number;
+    nextWait: number;
+}
+
+interface DefaultImageType {
+    scale: { x: number; y: number };
+    origin: { x: number; y: number };
+}
+
+interface SoundType extends Partial<DefaultSoundType> {
+    key: string;
+}
+
+interface ImageType extends Partial<DefaultImageType> {
+    key: string;
+}
+
+interface RelatedContentType {
+    key: string;
+    conId: number;
+    conGroupId?: number;
+    type: "video" | "module" | "flash";
+}
+
+interface FileConfigType {
+    [key: string]: { sound?: FileType[]; image?: FileType[]; sprite?: SpriteFileType[] };
+}
+
+interface SceneType {
+    bg: ImageType;
+    startSound?: SoundType[];
+    relatedContent?: RelatedContentType[];
+}
+
+interface ModuleConfigType {
+    defaultsSound: DefaultSoundType;
+    defaultsImage: DefaultImageType;
+    scene: { [key: string]: SceneType };
+}
+
+export interface ConfigType {
+    type: string;
+    version: string;
+    name: string;
+    conId: number;
+    file: FileConfigType;
+    module: ModuleConfigType;
+}

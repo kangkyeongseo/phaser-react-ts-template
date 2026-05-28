@@ -1,0 +1,43 @@
+{
+    "type": "type",
+    "version": "1.0.0",
+    "name": "name",
+    "conId": 0,
+    "file": {
+        "common": { "sound": [], "image": [], "sprite": [] },
+        "title": { "sound": [], "image": [], "sprite": [] },
+        "intro": { "sound": [], "image": [], "sprite": [] },
+        "main": { "sound": [], "image": [], "sprite": [] },
+        "ending": { "sound": [], "image": [], "sprite": [] }
+    },
+    "module": {
+        "defaultsSound": {
+            "volume": 1,
+            "delay": 0,
+            "nextWait": 0
+        },
+        "defaultsImage": {
+            "scale": { "x": 1, "y": 1 },
+            "origin": { "x": 0.5, "y": 0.5 }
+        },
+        "scene": {
+            "title": {
+                "bg": { "key": "key" },
+                "startSound": []
+            },
+            "intro": {
+                "bg": { "key": "key" },
+                "startSound": []
+            },
+            "quiz": {
+                "bg": { "key": "key" },
+                "startSound": []
+            },
+            "ending": {
+                "bg": { "key": "key" },
+                "startSound": [],
+                "relatedContent": [{ "key": "key", "conId": 0, "conGroupId": 0, "type": "video" }]
+            }
+        }
+    }
+}

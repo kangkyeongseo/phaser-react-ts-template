@@ -1,9 +1,9 @@
-interface FileType {
+export interface FileType {
     key: string;
     file: string;
 }
 
-interface SpriteFileType extends FileType {
+export interface SpriteFileType extends FileType {
     frameWidth: number;
     frameHeight: number;
 }

@@ -15,9 +15,9 @@ export class BaseScene extends Scene {
     isDesktop!: boolean;
     centerX!: number;
     centerY!: number;
-    isNextSceneReady!: boolean;
-    isLoading!: boolean;
     loading!: Loading;
+    isLoading!: boolean;
+    isNextSceneReady!: boolean;
     soundManager!: SoundManager;
     config!: ConfigType;
 
@@ -34,15 +34,15 @@ export class BaseScene extends Scene {
         this.centerY = this.scale.height / 2;
 
         this.loading = new Loading(this);
-        this.isNextSceneReady = false;
         this.isLoading = false;
-
-        this.soundManager = new SoundManager(this);
+        this.isNextSceneReady = false;
 
         const isConfigPreload = this.cache.json.exists("config");
         if (isConfigPreload) {
             this.config = this.cache.json.get("config");
         }
+
+        this.soundManager = new SoundManager(this, this.config.module.defaultsSound);
     }
 
     nextScenePreLoad(callback: () => void) {

@@ -8,7 +8,7 @@ interface SpriteFileType extends FileType {
     frameHeight: number;
 }
 
-interface DefaultSoundType {
+export interface DefaultSoundType {
     volume: number;
     delay: number;
     nextWait: number;
@@ -19,7 +19,7 @@ interface DefaultImageType {
     origin: { x: number; y: number };
 }
 
-interface SoundType extends Partial<DefaultSoundType> {
+export interface SoundType extends Partial<DefaultSoundType> {
     key: string;
 }
 

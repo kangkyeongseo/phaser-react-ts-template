@@ -19,6 +19,7 @@ export class BaseScene extends Scene {
     isLoading!: boolean;
     isNextSceneReady!: boolean;
     soundManager!: SoundManager;
+    isPortrait!: boolean;
     config!: ConfigType;
 
     constructor(key: string) {
@@ -43,7 +44,31 @@ export class BaseScene extends Scene {
         }
 
         this.soundManager = new SoundManager(this, this.config.module.defaultsSound);
+
+        this.updateOrientation();
+
+        const media = window.matchMedia("(orientation: portrait)");
+
+        media.addEventListener("change", () => {
+            this.updateOrientation();
+            this.applyLayout();
+        });
     }
+
+    updateOrientation() {
+        this.isPortrait = window.innerHeight > window.innerWidth;
+
+        const width = this.isPortrait ? 1080 : 1920;
+        const height = this.isPortrait ? 1920 : 1080;
+
+        this.scale.setGameSize(width, height);
+        this.scale.refresh();
+
+        this.centerX = this.scale.width / 2;
+        this.centerY = this.scale.height / 2;
+    }
+
+    applyLayout() {}
 
     nextScenePreLoad(callback: () => void) {
         this.load.start();

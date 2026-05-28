@@ -127,7 +127,7 @@ body {
 
 @media (min-aspect-ratio: 16 / 9) {
     canvas {
-        width: calc(100dvh / 10 * 16) !important;
+        width: calc(100dvh / 9 * 16) !important;
         height: 100dvh !important;
     }
 }

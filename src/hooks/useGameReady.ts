@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { EventBus } from "../game/utils/EventBus";
+import { EventBus } from "../game/class/EventBus";
 
 function useGameReady() {
     const [isGameReady, setIsGameReady] = useState(false);

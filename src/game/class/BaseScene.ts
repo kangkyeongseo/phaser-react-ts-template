@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { SoundManager } from "./SoundManager";
-import { EventBus } from "../utils/EventBus";
+import { EventBus } from "./EventBus";
 import { Loading } from "./Loading";
 
 declare global {

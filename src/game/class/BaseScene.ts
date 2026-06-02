@@ -22,7 +22,7 @@ interface ImageOptionType {
 }
 
 interface SpriteOptionType extends ImageOptionType {
-    index?: number;
+    frame?: number;
 }
 
 export class BaseScene extends Scene {
@@ -108,7 +108,7 @@ export class BaseScene extends Scene {
             .setDepth(setting.depth);
     }
 
-    addSprite({ x = 0, y = 0, key, index = 0, scale, origin, depth }: SpriteOptionType) {
+    addSprite({ x = 0, y = 0, key, frame = 0, scale, origin, depth }: SpriteOptionType) {
         const defaultsImage = this.config.module.defaultsImage;
         const setting = {
             scale: { ...defaultsImage.scale, ...scale },
@@ -117,7 +117,7 @@ export class BaseScene extends Scene {
         };
 
         return this.add
-            .sprite(x, y, key, index)
+            .sprite(x, y, key, frame)
             .setScale(setting.scale.x, setting.scale.y)
             .setOrigin(setting.origin.x, setting.origin.y)
             .setDepth(setting.depth);

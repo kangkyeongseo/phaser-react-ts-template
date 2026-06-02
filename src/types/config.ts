@@ -17,6 +17,7 @@ export interface DefaultSoundType {
 interface DefaultImageType {
     scale: { x: number; y: number };
     origin: { x: number; y: number };
+    depth: number;
 }
 
 export interface SoundType extends Partial<DefaultSoundType> {

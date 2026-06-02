@@ -12,6 +12,19 @@ declare global {
     }
 }
 
+interface ImageOptionType {
+    x?: number;
+    y?: number;
+    key: string;
+    scale?: { x: number; y: number };
+    origin?: { x: number; y: number };
+    depth?: number;
+}
+
+interface SpriteOptionType extends ImageOptionType {
+    index?: number;
+}
+
 export class BaseScene extends Scene {
     // state
     isDesktop!: boolean;
@@ -80,50 +93,34 @@ export class BaseScene extends Scene {
 
     applyLayout() {}
 
-    addImage({
-        x = 0,
-        y = 0,
-        key,
-        scale,
-        origin,
-    }: {
-        x?: number;
-        y?: number;
-        key: string;
-        scale?: { x: number; y: number };
-        origin?: { x: number; y: number };
-    }) {
+    addImage({ x = 0, y = 0, key, scale, origin, depth }: ImageOptionType) {
         const defaultsImage = this.config.module.defaultsImage;
-        const setting = { scale: { ...defaultsImage.scale, ...scale }, origin: { ...defaultsImage.origin, ...origin } };
+        const setting = {
+            scale: { ...defaultsImage.scale, ...scale },
+            origin: { ...defaultsImage.origin, ...origin },
+            depth: depth || defaultsImage.depth,
+        };
 
         return this.add
             .image(x, y, key)
             .setScale(setting.scale.x, setting.scale.y)
-            .setOrigin(setting.origin.x, setting.origin.y);
+            .setOrigin(setting.origin.x, setting.origin.y)
+            .setDepth(setting.depth);
     }
 
-    addSprite({
-        x = 0,
-        y = 0,
-        key,
-        index = 0,
-        scale,
-        origin,
-    }: {
-        x?: number;
-        y?: number;
-        key: string;
-        index?: number;
-        scale?: { x: number; y: number };
-        origin?: { x: number; y: number };
-    }) {
+    addSprite({ x = 0, y = 0, key, index = 0, scale, origin, depth }: SpriteOptionType) {
         const defaultsImage = this.config.module.defaultsImage;
-        const setting = { scale: { ...defaultsImage.scale, ...scale }, origin: { ...defaultsImage.origin, ...origin } };
+        const setting = {
+            scale: { ...defaultsImage.scale, ...scale },
+            origin: { ...defaultsImage.origin, ...origin },
+            depth: depth || defaultsImage.depth,
+        };
 
         return this.add
             .sprite(x, y, key, index)
             .setScale(setting.scale.x, setting.scale.y)
-            .setOrigin(setting.origin.x, setting.origin.y);
+            .setOrigin(setting.origin.x, setting.origin.y)
+            .setDepth(setting.depth);
     }
 
     nextScenePreLoad(netxScene: string) {

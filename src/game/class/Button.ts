@@ -1,9 +1,9 @@
 type ButtonTweenConfig = Omit<Phaser.Types.Tweens.TweenBuilderConfig, "targets">;
 
 interface ButtonConfig {
-    x: number;
-    y: number;
-    texture: string;
+    x?: number;
+    y?: number;
+    key: string;
     frame?: number;
     scale?: number;
     depth?: number;
@@ -25,9 +25,9 @@ export class Button {
         this.config = config;
         this.isDesktop = this.scene.sys.game.device.os.desktop;
 
-        const { x, y, texture, frame, scale = 1, depth = 1, isInterActive = false } = this.config;
+        const { x = 0, y = 0, key, frame, scale = 1, depth = 1, isInterActive = false } = this.config;
 
-        this.button = frame ? this.scene.add.sprite(x, y, texture, frame) : this.scene.add.image(x, y, texture);
+        this.button = frame ? this.scene.add.sprite(x, y, key, frame) : this.scene.add.image(x, y, key);
         this.button.scale = scale;
         this.button.depth = depth;
         this.initScale = scale;

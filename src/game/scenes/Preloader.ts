@@ -1,5 +1,7 @@
 import { Scene } from "phaser";
 import { EventBus } from "../class/EventBus";
+import { preloadAssets } from "../utils/preloadAssets";
+import { ConfigType } from "../../types/config";
 
 export class Preloader extends Scene {
     constructor() {
@@ -9,14 +11,20 @@ export class Preloader extends Scene {
     init() {}
 
     preload() {
+        // config
+        const config = this.cache.json.get("config");
+        const {
+            file: { Common },
+        } = config as ConfigType;
+
         this.load.setPath("assets");
-        // shared image
-        this.load.image("shared-spinner", "shared/img-shared-spinner.webp");
+
+        preloadAssets(this, Common);
     }
 
     create() {
         EventBus.emit("game-ready", this);
         EventBus.emit("scene-create", this);
-        // this.scene.start("MainMenu");
+        this.scene.start("first-scene-name");
     }
 }

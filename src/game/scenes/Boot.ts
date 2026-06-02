@@ -14,6 +14,8 @@ export class Boot extends Scene {
                 this.cache.json.add("config", {});
             }
         });
+        // shared image
+        this.load.image("shared-spinner", "shared/img-shared-spinner.webp");
     }
 
     create() {

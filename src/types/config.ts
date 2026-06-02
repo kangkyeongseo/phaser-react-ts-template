@@ -40,6 +40,7 @@ interface FileConfigType {
 
 interface SceneType {
     bg: ImageType;
+    bgm?: SoundType;
     startSound?: SoundType[];
     relatedContent?: RelatedContentType[];
 }
@@ -54,6 +55,7 @@ export interface ConfigType {
     type: string;
     version: string;
     name: string;
+    portraitMode: boolean;
     conId: number;
     file: FileConfigType;
     module: ModuleConfigType;

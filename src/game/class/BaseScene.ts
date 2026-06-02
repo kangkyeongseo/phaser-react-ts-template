@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { SoundManager } from "./SoundManager";
 import { EventBus } from "./EventBus";
 import { Loading } from "./Loading";
+import { preloadAssets } from "../utils/preloadAssets";
 import { ConfigType } from "../../types/config";
 
 declare global {
@@ -12,15 +13,19 @@ declare global {
 }
 
 export class BaseScene extends Scene {
+    // state
     isDesktop!: boolean;
     centerX!: number;
     centerY!: number;
     loading!: Loading;
     isLoading!: boolean;
     isNextSceneReady!: boolean;
-    soundManager!: SoundManager;
-    isPortrait!: boolean;
+    // config
     config!: ConfigType;
+    // soundManager
+    soundManager!: SoundManager;
+    // portraitMode
+    isPortrait!: boolean;
 
     constructor(key: string) {
         super(key);
@@ -28,31 +33,36 @@ export class BaseScene extends Scene {
 
     init(data?: any) {
         EventBus.emit("scene-create", this);
-
+        // state
         this.isDesktop = this.sys.game.device.os.desktop;
-
         this.centerX = this.scale.width / 2;
         this.centerY = this.scale.height / 2;
-
         this.loading = new Loading(this);
         this.isLoading = false;
         this.isNextSceneReady = false;
-
+        // config
         const isConfigPreload = this.cache.json.exists("config");
         if (isConfigPreload) {
             this.config = this.cache.json.get("config");
         }
-
+        // soundManager
         this.soundManager = new SoundManager(this, this.config.module.defaultsSound);
-
-        this.updateOrientation();
-
-        const media = window.matchMedia("(orientation: portrait)");
-
-        media.addEventListener("change", () => {
+        if (data.bgm) {
+            this.soundManager.bgm.bgm = data.bgm;
+        }
+        // portraitMode
+        if (this.config.portraitMode) {
             this.updateOrientation();
-            this.applyLayout();
-        });
+
+            const media = window.matchMedia("(orientation: portrait)");
+
+            media.addEventListener("change", () => {
+                this.updateOrientation();
+                this.applyLayout();
+            });
+        } else {
+            this.isPortrait = false;
+        }
     }
 
     updateOrientation() {
@@ -116,7 +126,13 @@ export class BaseScene extends Scene {
             .setOrigin(setting.origin.x, setting.origin.y);
     }
 
-    nextScenePreLoad(callback: () => void) {
+    nextScenePreLoad(netxScene: string) {
+        const { file } = this.config;
+
+        this.load.setPath("assets");
+
+        preloadAssets(this, file[netxScene]);
+
         this.load.start();
         if (this.load.totalToLoad === 0) {
             this.isNextSceneReady = true;
@@ -125,15 +141,18 @@ export class BaseScene extends Scene {
                 this.isNextSceneReady = true;
                 if (this.isLoading) {
                     this.loading.remove();
-                    callback();
+                    this.startNextScene(netxScene);
                 }
             });
         }
     }
 
-    nextSceneLoadCheck(callback: () => void) {
+    startNextScene(netxScene: string) {
         if (this.isNextSceneReady) {
-            callback();
+            this.cameras.main.fadeOut(300);
+            this.cameras.main.once("camerafadeoutcomplete", () => {
+                this.scene.start(netxScene, { bgm: this.soundManager.bgm.bgm });
+            });
         } else {
             this.isLoading = true;
             this.loading.add();

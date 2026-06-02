@@ -6,13 +6,11 @@ interface VoiceSoundConfig extends Phaser.Types.Sound.SoundConfig {
 
 class BgmManager {
     private scene: Phaser.Scene;
-    private defaultsSound: DefaultSoundType;
-    private bgm?: Phaser.Sound.BaseSound;
+    public bgm?: Phaser.Sound.BaseSound;
     private bgmKey?: string;
 
-    constructor(scene: Phaser.Scene, defaultsSound: DefaultSoundType) {
+    constructor(scene: Phaser.Scene) {
         this.scene = scene;
-        this.defaultsSound = defaultsSound;
     }
 
     play({
@@ -39,9 +37,8 @@ class BgmManager {
         this.bgm = this.scene.sound.add(key);
 
         this.bgm.play({
-            loop: true,
             volume: startVolume,
-            delay: this.defaultsSound.delay,
+            loop: true,
             ...config,
         });
 
@@ -109,27 +106,24 @@ class SfxManager {
 class VoiceManager {
     private scene: Phaser.Scene;
     private defaultsSound: DefaultSoundType;
+    private voice?: Phaser.Sound.BaseSound;
+    private isStop: boolean;
 
     constructor(scene: Phaser.Scene, defaultsSound: DefaultSoundType) {
         this.scene = scene;
         this.defaultsSound = defaultsSound;
+        this.isStop = false;
     }
 
     async play(key: string, config?: VoiceSoundConfig) {
         return new Promise<void>((resolve) => {
             const { nextWait = this.defaultsSound.nextWait, ...soundConfig } = config ?? {};
 
-            const sound = this.scene.sound.add(key);
-
-            let finished = false;
+            this.voice = this.scene.sound.add(key);
 
             const cleanup = () => {
-                if (finished) return;
-
-                finished = true;
-
-                sound.removeAllListeners();
-                sound.destroy();
+                this.voice?.removeAllListeners();
+                this.voice?.destroy();
             };
 
             const complete = () => {
@@ -145,14 +139,9 @@ class VoiceManager {
                 });
             };
 
-            sound.once("complete", complete);
+            this.voice.once("complete", complete);
 
-            sound.once("stop", () => {
-                cleanup();
-                resolve();
-            });
-
-            sound.play({
+            this.voice.play({
                 volume: this.defaultsSound.volume,
                 delay: this.defaultsSound.delay,
                 ...soundConfig,
@@ -162,12 +151,19 @@ class VoiceManager {
 
     async sequentialPlay(sounds: SoundType[]) {
         for (const sound of sounds) {
+            if (this.isStop) break;
             await this.play(sound.key, {
                 volume: sound.volume ?? this.defaultsSound.volume,
                 delay: sound.delay ?? this.defaultsSound.delay,
                 nextWait: sound.nextWait ?? this.defaultsSound.nextWait,
             });
         }
+    }
+
+    stop() {
+        if (this.isStop) return;
+        this.isStop = true;
+        this.voice?.stop();
     }
 }
 
@@ -177,8 +173,16 @@ export class SoundManager {
     public voice: VoiceManager;
 
     constructor(scene: Phaser.Scene, defaultsSound: DefaultSoundType) {
-        this.bgm = new BgmManager(scene, defaultsSound);
+        this.bgm = new BgmManager(scene);
         this.sfx = new SfxManager(scene, defaultsSound);
         this.voice = new VoiceManager(scene, defaultsSound);
+
+        scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.voice.stop();
+        });
+
+        scene.events.once(Phaser.Scenes.Events.DESTROY, () => {
+            this.voice.stop();
+        });
     }
 }

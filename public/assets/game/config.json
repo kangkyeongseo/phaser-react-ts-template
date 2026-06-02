@@ -2,13 +2,14 @@
     "type": "type",
     "version": "1.0.0",
     "name": "name",
+    "portraitMode": false,
     "conId": 0,
     "file": {
-        "common": { "sound": [], "image": [], "sprite": [] },
-        "title": { "sound": [], "image": [], "sprite": [] },
-        "intro": { "sound": [], "image": [], "sprite": [] },
-        "main": { "sound": [], "image": [], "sprite": [] },
-        "ending": { "sound": [], "image": [], "sprite": [] }
+        "Common": { "sound": [], "image": [], "sprite": [] },
+        "Title": { "sound": [], "image": [], "sprite": [] },
+        "Intro": { "sound": [], "image": [], "sprite": [] },
+        "Main": { "sound": [], "image": [], "sprite": [] },
+        "Ending": { "sound": [], "image": [], "sprite": [] }
     },
     "module": {
         "defaultsSound": {
@@ -21,20 +22,22 @@
             "origin": { "x": 0.5, "y": 0.5 }
         },
         "scene": {
-            "title": {
+            "Title": {
+                "bg": { "key": "key" },
+                "bgm": { "key": "" },
+                "startSound": []
+            },
+            "Intro": {
                 "bg": { "key": "key" },
                 "startSound": []
             },
-            "intro": {
+            "Quiz": {
                 "bg": { "key": "key" },
                 "startSound": []
             },
-            "quiz": {
+            "Ending": {
                 "bg": { "key": "key" },
-                "startSound": []
-            },
-            "ending": {
-                "bg": { "key": "key" },
+                "bgm": { "key": "" },
                 "startSound": [],
                 "relatedContent": [{ "key": "key", "conId": 0, "conGroupId": 0, "type": "video" }]
             }

@@ -1,10 +1,8 @@
 type ButtonTweenConfig = Omit<Phaser.Types.Tweens.TweenBuilderConfig, "targets">;
 
-interface ButtonConfig {
-    x?: number;
-    y?: number;
-    key: string;
-    frame?: number;
+type ButtonObject = Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.Container;
+
+interface BaseButtonConfig {
     scale?: number;
     depth?: number;
     isInterActive?: boolean;
@@ -13,32 +11,41 @@ interface ButtonConfig {
     onComplete?: () => void;
 }
 
-export class Button {
-    private scene!: Phaser.Scene;
-    private config!: ButtonConfig;
-    private isDesktop!: boolean;
-    private button!: Phaser.GameObjects.Image;
-    private initScale!: number;
+interface ButtonConfig extends BaseButtonConfig {
+    x?: number;
+    y?: number;
+    key: string;
+    frame?: number;
+}
 
-    constructor(scene: Phaser.Scene, config: ButtonConfig) {
+interface ContainerButtonConfig extends BaseButtonConfig {
+    width: number;
+    height: number;
+    container: Phaser.GameObjects.Container;
+}
+
+abstract class BaseButton<T extends ButtonObject> {
+    protected scene: Phaser.Scene;
+    protected button: T;
+    protected config: BaseButtonConfig;
+    protected isDesktop: boolean;
+    protected initScale: number;
+
+    constructor(scene: Phaser.Scene, button: T, config: BaseButtonConfig, scale: number) {
         this.scene = scene;
+        this.button = button;
         this.config = config;
-        this.isDesktop = this.scene.sys.game.device.os.desktop;
-
-        const { x = 0, y = 0, key, frame, scale = 1, depth = 1, isInterActive = false } = this.config;
-
-        this.button = frame ? this.scene.add.sprite(x, y, key, frame) : this.scene.add.image(x, y, key);
-        this.button.scale = scale;
-        this.button.depth = depth;
         this.initScale = scale;
-        if (isInterActive) this.button.setInteractive({ cursor: "pointer" });
+        this.isDesktop = scene.sys.game.device.os.desktop;
+
         this.setDefaultActive();
     }
 
-    setDefaultActive() {
+    protected setDefaultActive() {
         const { tweensConfig, onStart = () => {}, onComplete = () => {} } = this.config;
-        let tweens: Phaser.Tweens.Tween | null;
-        let pointerOutTween: Phaser.Tweens.Tween | null;
+
+        let tweens: Phaser.Tweens.Tween | null = null;
+        let pointerOutTween: Phaser.Tweens.Tween | null = null;
 
         if (tweensConfig) {
             tweens = this.scene.tweens.add({
@@ -97,5 +104,42 @@ export class Button {
 
     get object() {
         return this.button;
+    }
+}
+
+export class Button extends BaseButton<Phaser.GameObjects.Image | Phaser.GameObjects.Sprite> {
+    constructor(scene: Phaser.Scene, config: ButtonConfig) {
+        const { x = 0, y = 0, key, frame, scale = 1, depth = 1, isInterActive = false } = config;
+
+        const button = frame ? scene.add.sprite(x, y, key, frame) : scene.add.image(x, y, key);
+
+        button.setScale(scale);
+        button.setDepth(depth);
+
+        if (isInterActive) {
+            button.setInteractive({ cursor: "pointer" });
+        }
+
+        super(scene, button, config, scale);
+    }
+}
+
+export class ContainerButton extends BaseButton<Phaser.GameObjects.Container> {
+    constructor(scene: Phaser.Scene, config: ContainerButtonConfig) {
+        const { width, height, container, scale = 1, depth = 1, isInterActive = false } = config;
+
+        container.setSize(width, height);
+        container.setScale(scale);
+        container.setDepth(depth);
+
+        if (isInterActive) {
+            container.setInteractive({
+                hitArea: new Phaser.Geom.Rectangle(0, 0, width, height),
+                hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+                useHandCursor: true,
+            });
+        }
+
+        super(scene, container, config, scale);
     }
 }
